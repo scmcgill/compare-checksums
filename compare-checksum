@@ -1,0 +1,26 @@
+#!/bin/bash
+url_check () {
+    echo "$1" | grep -e "^http" -e ".*\.com" -e ".*\.info" -e ".*\.edu" -e ".*\.gov" -e ".*\.biz"
+}
+
+declare -A arr_checksum=()
+for f in $@
+do
+    checked_for_url=$(url_check $f)
+    if [[ -n $checked_for_url ]]; 
+    then
+        arr_checksum["$f"]=$(curl -s $f | sha256sum | cut -d ' ' -f 1)
+    else
+        arr_checksum["$f"]=$(sha256sum $f | cut -d ' ' -f 1)
+    fi
+done
+for key in ${!arr_checksum[@]}
+do
+    echo "Key: $key"
+    echo "Value: ${arr_checksum[$key]}"
+    echo
+done
+unset url
+unset checked_for_url
+unset url
+unset arr_checksum
